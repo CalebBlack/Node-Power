@@ -84,7 +84,7 @@ class NodePower {
         this.io.emit('output',{page:output[0],name:output[1],message});
       });
     });
-    this.app.use(express.static('build'));
+    this.app.use(express.static(path.join(__dirname, 'build')));
     this.app.get('*', function(req, res) {
       res.sendFile(path.join(__dirname + '/src/index.html'));
     });
