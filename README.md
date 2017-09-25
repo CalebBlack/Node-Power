@@ -1,4 +1,4 @@
-## Node Power
+# Node Power
 
 Node.js library for fully automatically generating and connecting web interfaces using Express REST API, Socket.io and React.js with a simple schema setup.
 
@@ -22,7 +22,7 @@ const app = new NodePower(schema);
 app.run(4000);
 ```
 
-# Incrementing Counter with Buttons
+## Incrementing Counter with Buttons
 
 ```
 const NodePower = require('node-power');
