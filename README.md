@@ -5,7 +5,8 @@ Node.js library for creating interfaces using websockets and React.js
 
 Example Setup:
 
-```const NodePower = require('node-power');
+```
+const NodePower = require('node-power');
 
 const schema = {title:'Test Power',pages:{'/':[
   {text:'Node Power Test App'},
