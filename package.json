@@ -1,6 +1,6 @@
 {
   "name": "node-power",
-  "version": "1.0.2",
+  "version": "1.0.5",
   "description": "Node.js library for creating interfaces using websockets and React.js",
   "main": "nodePower.js",
   "scripts": {
