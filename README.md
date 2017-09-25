@@ -2,7 +2,10 @@
 
 Node.js library for fully automatically generating and connecting web interfaces using Express REST API, Socket.io and React.js with a simple schema setup.
 
-Examples:
+# Examples
+
+
+## Example multiple page app
 
 ```
 const NodePower = require('node-power');
