@@ -31,9 +31,9 @@ var i = 0;
 var output = null;
 const schema = {title:'Test Power',pages:{
   '/':[
-    {button:['name',()=>{if (output){i--;output(i)}}]},
-    {button:['name2',()=>{if (output){i++;output(i)}}]},
-    {output:['age',(send)=>{
+    {button:['subtract',()=>{if (output){i--;output(i)}}]},
+    {button:['add',()=>{if (output){i++;output(i)}}]},
+    {output:['counter',(send)=>{
       send(i);
       output = send;
     }]},
