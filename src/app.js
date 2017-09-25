@@ -3,6 +3,8 @@ import request from './functions/request';
 import safeParse from './functions/safeparse';
 import {Link} from 'react-router-dom';
 import Page from './page';
+import io from 'socket.io-client';
+
 
 class App extends React.Component {
   constructor(props){
@@ -10,11 +12,12 @@ class App extends React.Component {
     this.state = {};
   }
   componentDidMount(){
-    request('http://localhost:4000/schema').then(xhr=>{
+    request('/schema').then(xhr=>{
       var response = safeParse(xhr.response);
       if (response) {
         document.title = response.title;
-        this.setState(Object.assign({},this.state,{schema:response}));
+        let socket = io();
+        this.setState(Object.assign({},this.state,{schema:response,socket}));
       }
     }).catch(err=>{
       console.log(err);
@@ -24,7 +27,7 @@ class App extends React.Component {
     if (this.state.schema) {
       if (this.state.schema.pages[window.location.pathname]) {
         var page = this.state.schema.pages[window.location.pathname];
-        return <Page content={page}/>
+        return <Page socket={this.state.socket || null} content={page}/>
       } else {
         return <p>page not found</p>
       }

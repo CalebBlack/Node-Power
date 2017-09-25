@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link} from 'react-router-dom';
 import request from './functions/request';
+import Output from './output';
 
 class Page extends React.Component {
   constructor(props){
@@ -14,11 +15,11 @@ class Page extends React.Component {
   }
   render(){
     return (
-      <div id='page'>{this.props.content.map(element=>{return convertElement(element)})}</div>
+      <div id='page'>{this.props.content.map(element=>{return convertElement(element,this.props)})}</div>
     )
   }
 }
-function convertElement(element) {
+function convertElement(element,props) {
   var type = Object.keys(element)[0];
   if (type === 'text') {
     return <p>{element[type]}</p>
@@ -29,7 +30,7 @@ function convertElement(element) {
       if (event.key === 'Enter') {
         let input = event.target.value || '';
         if (input.length > 0) {
-          request('http://localhost:4000/api/pages'+window.location.pathname+"?type=input&field="+element[type]+"&value="+input,'post').then(xhr=>{
+          request('/api/pages'+window.location.pathname+"?type=input&field="+element[type]+"&value="+input,'post').then(xhr=>{
             console.log(xhr);
           }).catch(err=>{
             console.log(err);
@@ -40,12 +41,16 @@ function convertElement(element) {
     }} id={element[type]}/>
   } else if (type === 'button') {
     return <button onClick={()=>{
-          request('http://localhost:4000/api/pages'+window.location.pathname+"?type=button&field="+element[type],'post').then(xhr=>{
+          request('/api/pages'+window.location.pathname+"?type=button&field="+element[type],'post').then(xhr=>{
             console.log(xhr);
           }).catch(err=>{
             console.log(err);
           });
     }} id={element[type]}/>
+  } else if (type === 'output') {
+    if (props.socket) {
+      return (<Output socket={props.socket} page={window.location.pathname} name={element[type]}/>);
+    }
   }
 }
 export default Page;
