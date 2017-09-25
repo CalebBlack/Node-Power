@@ -51,5 +51,7 @@ app.run(5000);
 # API
 
 The rest endpoints can be found at /api/pages/{pagepath}
+
 Input Query Format (POST): ?type=input&field={name}&value={value}
+
 Button Query Format (POST): ?type=button&field={name}
