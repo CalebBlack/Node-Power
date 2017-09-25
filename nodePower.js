@@ -4,6 +4,7 @@ const io = require('socket.io');
 const formatSchemaToClient = require('./functions/formatschematoclient.js');
 const defaultSchema = {title:'NodePower',pages:{'/':[{text:'Node Power'}]}};
 const bodyParser = require('body-parser');
+const path = require('path');
 
 class NodePower {
   constructor(schema){
@@ -11,11 +12,6 @@ class NodePower {
     this.clientSchema = formatSchemaToClient(this.schema);
     this.run = this.run.bind(this);
     this.app = express();
-    this.app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
     this.http = http.Server(this.app);
     this.io = io(this.http);
     this.users = [];
@@ -50,7 +46,6 @@ class NodePower {
       });
       console.log('route','/api/pages'+pageEntry[0]);
       this.app.post('/api/pages'+pageEntry[0],(req,res)=>{
-        console.log(req);
         if (req.query.field && req.query.type) {
           if (typeof req.query.field === 'string' && typeof req.query.type === 'string') {
             if (req.query.type === 'input') {
@@ -88,6 +83,10 @@ class NodePower {
       output[2]((message)=>{
         this.io.emit('output',{page:output[0],name:output[1],message});
       });
+    });
+    this.app.use(express.static('build'));
+    this.app.get('*', function(req, res) {
+      res.sendFile(path.join(__dirname + '/src/index.html'));
     });
   }
 
