@@ -1,15 +1,34 @@
 const express = require('express');
+const http = require('http');
+const io = require('socket.io');
+const formatSchemaToClient = require('./functions/formatschematoclient.js');
 const defaultSchema = {title:'NodePower',pages:{'/':[{text:'Node Power'}]}};
 const bodyParser = require('body-parser');
 
 class NodePower {
   constructor(schema){
-    this.schema = schema;
+    this.schema = Object.assign({},defaultSchema,schema);
+    this.clientSchema = formatSchemaToClient(this.schema);
     this.run = this.run.bind(this);
     this.app = express();
+    this.http = http.Server(this.app);
+    this.io = io(this.http);
+    this.users = [];
     this.app.use(bodyParser.json());
-    this.app.get('/schema',(req,res)=>{res.status(200);res.send(this.schema)});
+    this.app.get('/schema',(req,res)=>{res.status(200);res.send(this.clientSchema)});
     this.app.disable('x-powered-by');
+    // SETUP SOCKET IO CONNECTIONS
+    this.io.on('connection', (socket)=>{
+      console.log('socketconnection',socket);
+      this.users.push(socket);
+      socket.on('disconnect', ()=>{
+        var i = this.users.indexOf(socket);
+        if (i < 0) return;
+        this.users.splice(i, 1);
+      });
+    });
+    // SETUP REST API
+    var outputs = [];
     Object.entries(this.schema.pages).forEach(pageEntry=>{
       var inputs = {};
       var buttons = {};
@@ -21,6 +40,10 @@ class NodePower {
       }).forEach(buttonElement=>{
         buttons[buttonElement.button[0]] = buttonElement.button[1];
       });
+      pageEntry[1].filter(element=>{return (Object.keys(element)[0] === 'output')}).forEach(outputElement=>{
+        outputs.push([pageEntry[0],outputElement.output[0],outputElement.output[1]])
+      });
+      console.log(outputs);
       this.app.post('/api/pages'+pageEntry[0]+'/input',(req,res)=>{
         if (req.query.field && req.query.value) {
           if (typeof req.query.field === 'string' && typeof req.query.value === 'string') {
@@ -55,9 +78,17 @@ class NodePower {
         }
       });
     });
+    // Prepare Socket.io Outputs
+    outputs.forEach(output=>{
+      output[2]((message)=>{
+        this.io.emit('output',{page:output[0],name:output[1],message});
+      });
+    });
   }
   run(port) {
-    return this.app.listen(port);
+    this.http.listen(port, function(){
+      console.log('listening on',port);
+    });
   }
 }
 module.exports = NodePower;
