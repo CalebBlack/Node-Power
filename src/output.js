@@ -17,7 +17,7 @@ class Output extends React.Component {
     return (
       <div className='output'>
         <h1>{this.props.name}</h1>
-        <p>{this.state.value || ''}</p>
+        <p>{this.state.value !== null && this.state.value !== undefined ? this.state.value : ''}</p>
       </div>
     );
   }
