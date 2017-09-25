@@ -4,7 +4,8 @@ module.exports = function(schema){
     out.pages[page[0]] = page[1].map(element=>{
       var elementOut = {};
       var value = Object.values(element)[0];
-      elementOut[Object.keys(element)[0]] = typeof value === 'string' ? value : value[0];
+      var type = Object.keys(element)[0];
+      elementOut[type] = typeof value === 'string' ? value : type === 'link' ? value.slice(0,2): value[0];
       return elementOut;
     });
   });

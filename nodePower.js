@@ -11,6 +11,11 @@ class NodePower {
     this.clientSchema = formatSchemaToClient(this.schema);
     this.run = this.run.bind(this);
     this.app = express();
+    this.app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
     this.http = http.Server(this.app);
     this.io = io(this.http);
     this.users = [];
@@ -19,7 +24,7 @@ class NodePower {
     this.app.disable('x-powered-by');
     // SETUP SOCKET IO CONNECTIONS
     this.io.on('connection', (socket)=>{
-      console.log('socketconnection',socket);
+      console.log('socketconnection');
       this.users.push(socket);
       socket.on('disconnect', ()=>{
         var i = this.users.indexOf(socket);
@@ -43,15 +48,31 @@ class NodePower {
       pageEntry[1].filter(element=>{return (Object.keys(element)[0] === 'output')}).forEach(outputElement=>{
         outputs.push([pageEntry[0],outputElement.output[0],outputElement.output[1]])
       });
-      console.log(outputs);
-      this.app.post('/api/pages'+pageEntry[0]+'/input',(req,res)=>{
-        if (req.query.field && req.query.value) {
-          if (typeof req.query.field === 'string' && typeof req.query.value === 'string') {
-            if (inputs[req.query.field]) {
-              inputs[req.query.field](req.query.value);
-              res.status(200).send('successful');
+      console.log('route','/api/pages'+pageEntry[0]);
+      this.app.post('/api/pages'+pageEntry[0],(req,res)=>{
+        console.log(req);
+        if (req.query.field && req.query.type) {
+          if (typeof req.query.field === 'string' && typeof req.query.type === 'string') {
+            if (req.query.type === 'input') {
+              if (req.query.value && typeof req.query.value === 'string') {
+                if (inputs[req.query.field]) {
+                  inputs[req.query.field](req.query.value);
+                  res.status(200).send('successful');
+                } else {
+                  res.status(404).send('nonexistant input');
+                }
+              } else {
+                res.status(400).send('malformed query');
+              }
+            } else if (req.query.type === 'button') {
+              if (buttons[req.query.field]) {
+                buttons[req.query.field]();
+                res.status(200).send('successful');
+              } else {
+                res.status(404).send('nonexistant button');
+              }
             } else {
-              res.status(404).send('nonexistant input');
+              res.status(400).send('malformed query');
             }
           } else {
             res.status(400).send('malformed query');
@@ -59,22 +80,6 @@ class NodePower {
         } else {
           res.status(400).send('missing query');
           return;
-        }
-      });
-      this.app.post('/api/pages'+pageEntry[0]+'/button',(req,res)=>{
-        if (req.query.field) {
-          if (typeof req.query.field === 'string') {
-            if (buttons[req.query.field]) {
-              buttons[req.query.field]();
-              res.status(200).send('successful');
-            } else {
-              res.status(404).send('nonexistant button');
-            }
-          } else {
-            res.status(400).send('malformed query');
-          }
-        } else {
-          res.status(400).send('missing query');
         }
       });
     });
@@ -85,6 +90,7 @@ class NodePower {
       });
     });
   }
+
   run(port) {
     this.http.listen(port, function(){
       console.log('listening on',port);

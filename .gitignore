@@ -2,5 +2,6 @@ src/node_modules/
 **/.DS_Store
 /src/build/
 /node_modules/
+/build/
 /test.js
 /test2.js
