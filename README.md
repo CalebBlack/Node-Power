@@ -2,7 +2,7 @@
 
 Node.js library for fully automatically generating and connecting web interfaces using Express REST API, Socket.io and React.js with a simple schema setup.
 
-Example Setup:
+Examples:
 
 ```
 const NodePower = require('node-power');
@@ -20,4 +20,28 @@ const schema = {title:'Test Power',pages:{'/':[
 
 const app = new NodePower(schema);
 app.run(4000);
+```
+
+# Incrementing Counter with Buttons
+
+```
+const NodePower = require('node-power');
+
+var i = 0;
+var output = null;
+const schema = {title:'Test Power',pages:{
+  '/':[
+    {button:['name',()=>{if (output){i--;output(i)}}]},
+    {button:['name2',()=>{if (output){i++;output(i)}}]},
+    {output:['age',(send)=>{
+      send(i);
+      output = send;
+    }]},
+    {link:['Home','/']}
+  ]
+}};
+
+
+const app = new NodePower(schema);
+app.run(5000);
 ```
