@@ -1,7 +1,6 @@
 ## Node Power
 
-Node.js library for creating interfaces using websockets and React.js
-
+Node.js library for fully automatically generating and connecting web interfaces using Express REST API, Socket.io and React.js with a simple setup through a simple schema setup.
 
 Example Setup:
 
